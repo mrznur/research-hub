@@ -22,10 +22,31 @@ import json, logging, re, threading, time
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+import secrets
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
+
+security = HTTPBasic()
+
+def _check_auth(credentials: HTTPBasicCredentials = Depends(security)):
+    """Protect all API endpoints with a simple username/password."""
+    username = os.environ.get("HUB_USER", "admin")
+    password = os.environ.get("HUB_PASS", "")
+    if not password:
+        return  # no password set — open access (dev mode)
+    ok = (
+        secrets.compare_digest(credentials.username.encode(), username.encode()) and
+        secrets.compare_digest(credentials.password.encode(), password.encode())
+    )
+    if not ok:
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
 
 try:
     from hub import Hub, CAPABILITIES, DEMO          # when run from inside backend/
@@ -35,7 +56,7 @@ except ModuleNotFoundError:
 log = logging.getLogger("hub.api")
 hub = Hub()
 running: set[str] = set()
-app = FastAPI(title="Research Hub")
+app = FastAPI(title="Research Hub", dependencies=[Depends(_check_auth)])
 
 # ── startup check ─────────────────────────────────────────────────────────────
 # api.py lives in  backend/
