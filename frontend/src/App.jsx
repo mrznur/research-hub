@@ -113,11 +113,12 @@ export default function App() {
         </button>
         <span className="mobile-brand">Research Hub</span>
         {reviewBadge > 0 && (
-          <button className="badge" onClick={() => navigate("review")} style={{ cursor: "pointer", background: "var(--dan)", color: "#fff", border: 0, borderRadius: 99, padding: "2px 8px", fontSize: 11, fontWeight: 800 }}>
-            {reviewBadge}
+          <button className="mob-notif-btn" onClick={() => navigate("review")} aria-label={`${reviewBadge} items need review`}>
+            <Bell size={17} />
+            <span className="mob-notif-dot">{reviewBadge}</span>
           </button>
         )}
-        <button className="hamburger" onClick={toggleDark} aria-label="Toggle theme" style={{ marginLeft: "auto" }}>
+        <button className="hamburger" onClick={toggleDark} aria-label="Toggle theme" style={{ marginLeft: reviewBadge > 0 ? 0 : "auto" }}>
           {dark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </div>

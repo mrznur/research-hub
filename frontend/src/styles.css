@@ -379,6 +379,31 @@ pre.doc { white-space: pre-wrap; word-break: break-word; font: 13px/1.7 "Menlo",
 .mobile-topbar { display: none; }
 .drawer-overlay { display: none; }
 
+/* notification bell button in mobile topbar */
+.mob-notif-btn {
+  position: relative;
+  width: 36px; height: 36px;
+  background: none; border: 1.5px solid var(--bd);
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--tx); flex-shrink: 0;
+  transition: background .12s, border-color .12s, color .12s;
+  margin-left: auto;
+}
+.mob-notif-btn:hover { background: var(--bg); border-color: var(--dan); color: var(--dan); }
+.mob-notif-dot {
+  position: absolute;
+  top: -5px; right: -5px;
+  background: var(--dan); color: #fff;
+  font-size: 10px; font-weight: 800;
+  min-width: 17px; height: 17px;
+  border-radius: 99px; padding: 0 4px;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+  border: 2px solid var(--side-bg);
+  pointer-events: none;
+}
+
 /* ── responsive — tablet/mobile (768px) ──────────────────────────────────── */
 @media (max-width: 768px) {
   /* layout: single column, sidebar overlays content */
