@@ -1,8 +1,16 @@
 # Research Hub
 
-Claude researches any topic with live web search and automatically organises the
-findings into a real folder library. Every finding is a plain Markdown file you
-can open in any editor. Nothing is locked inside a database.
+A Groq-powered research assistant that investigates any topic using live web search and automatically organises findings into a real folder library. Every finding is a plain Markdown file you can open in any editor — nothing is locked inside a database.
+
+---
+
+## How it works
+
+1. You give it a topic (and optional instructions)
+2. The Groq LLM searches the web, reads results, and writes structured findings
+3. Findings are auto-filed into your library folders based on confidence scoring
+4. Uncertain placements are held in a pending queue for your review
+5. Filing decisions are remembered and reused in future research runs
 
 ---
 
@@ -12,13 +20,13 @@ can open in any editor. Nothing is locked inside a database.
 research-hub/
 ├── backend/                   # Python – FastAPI + Hub engine
 │   ├── __init__.py
-│   ├── hub.py                 # Core Hub class, CLI, Claude agent loop
+│   ├── hub.py                 # Core Hub class, CLI, Groq agent loop
 │   ├── api.py                 # FastAPI REST API (serves frontend/dist in prod)
 │   └── requirements.txt       # Pinned Python dependencies
 │
 ├── frontend/                  # React + Vite UI
-│   ├── index.html             # Vite HTML shell
-│   ├── vite.config.js         # Vite config (dev proxy → :8000, build → dist/)
+│   ├── index.html
+│   ├── vite.config.js         # Dev proxy → :8000, build → dist/
 │   ├── package.json
 │   ├── public/
 │   │   └── favicon.svg
@@ -27,7 +35,8 @@ research-hub/
 │       ├── App.jsx            # All UI components
 │       └── styles.css         # Design tokens + layout
 │
-├── docs/                      # Additional documentation (add your own)
+├── docs/
+│   └── SYSTEM_DESIGN.md
 │
 ├── research_hub_data/         # Created at runtime – not committed
 │   ├── library/               # Filed findings (Markdown)
@@ -36,54 +45,47 @@ research-hub/
 │       ├── state.json         # Sessions, pending queue, decisions, notices
 │       └── activity.jsonl     # Append-only event log
 │
-├── .env.example               # Copy to .env and fill in ANTHROPIC_API_KEY
+├── .env.example               # Copy to .env and fill in your API keys
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Requirements coverage
+## Requirements
 
-| # | Requirement | Where it lives |
-|---|---|---|
-| 1 | Research specific topics from your instructions | `backend/hub.py` `run_agent` → Claude + `web_search` tool |
-| 2 | Auto-organise into folders/subfolders | `file_finding` tool → `write_finding` → `library/<Folder>/` |
-| 3 | Decide placement by context (confidence gate) | Claude scores confidence; ≥ 0.7 in existing folder = auto-filed |
-| 4 | Ask permission when unsure | Pending queue → **Review** tab / `hub review` CLI |
-| 5 | Track capabilities | `CAPABILITIES` string → **About** tab |
-| 6 | Notify on limitations / errors | `report_limitation` tool → **Review → Limitations** / `hub notices` |
-| 7 | Powerful search across all research | Full-text + partial match, snippet previews → **Search** tab / `hub search` |
-| 8 | Research history and activity logs | `activity.jsonl` → **Activity** tab (filterable by session) / `hub log` |
-| 9 | Resume from exactly where you stopped | `save_progress` tool → **Resume** button / `hub resume` |
-| 10 | Remember previous decisions for future runs | `decisions` list fed into every system prompt → **Decisions** tab / `hub decisions` |
-| 11 | Structured, traceable, easy to manage | Plain-file library + full audit log + delete finding in Library UI |
+- Python 3.10+
+- Node.js 18+ (for the React frontend)
+- A free [Groq API key](https://console.groq.com) — no credit card needed
+- (Optional) A free [Tavily API key](https://app.tavily.com) for live web search — 1000 searches/month free
 
 ---
 
 ## Setup
 
 ```bash
-# 1. Clone / download the project
+# 1. Clone the repo
+git clone https://github.com/mrznur/research-hub.git
 cd research-hub
 
-# 2. Python backend
+# 2. Create and activate a Python virtual environment
 python -m venv .venv
+
 # Windows:
 .venv\Scripts\activate
 # macOS / Linux:
 source .venv/bin/activate
 
+# 3. Install Python dependencies
 pip install -r backend/requirements.txt
 
-# 3. Get a FREE Gemini API key
-#    → https://aistudio.google.com  (sign in with Google, click "Get API key")
-#    No credit card required.
+# 4. Configure environment variables
+cp .env.example .env
+# Open .env and set:
+#   GROQ_API_KEY=gsk_...        (required)
+#   TAVILY_API_KEY=tvly-...     (optional, enables live web search)
 
-# 4. Set your API key (copy .env.example → .env and edit)
-cp .env.example .env        # then open .env and set GEMINI_API_KEY=AIza...
-
-# 5. (Optional) build the React UI once
+# 5. Build the React UI
 cd frontend && npm install && npm run build && cd ..
 ```
 
@@ -91,35 +93,35 @@ cd frontend && npm install && npm run build && cd ..
 
 ## Run
 
-### Web app  (React UI + REST API)
+### Web app (React UI + REST API)
 
 ```bash
-# From the project root, run uvicorn pointing at backend/api.py:
 uvicorn backend.api:app --port 8000
-# Then open http://localhost:8000
+# Open http://localhost:8000
 ```
 
-### Frontend development server  (hot-reload, proxies /api → :8000)
+### Frontend dev server (hot-reload, proxies /api → :8000)
 
 Start the backend first, then in a second terminal:
 
 ```bash
 cd frontend
-npm run dev          # opens http://localhost:5173
+npm run dev
+# Opens http://localhost:5173
 ```
 
 ### Rebuild the UI for production
 
 ```bash
 cd frontend && npm run build
-# Output goes to frontend/dist/ which api.py picks up automatically
+# Output goes to frontend/dist/ — picked up automatically by api.py
 ```
 
 ---
 
 ## CLI reference
 
-All commands run from the **project root** with the venv active.
+All commands run from the project root with the venv active.
 
 ```bash
 # Start new research
@@ -134,7 +136,7 @@ python -m backend.hub review
 # See limitations, access problems, open questions
 python -m backend.hub notices [--clear]
 
-# Full-text + partial search with snippet previews
+# Full-text search with snippet previews
 python -m backend.hub search perovskite
 
 # Show library folder tree
@@ -146,7 +148,7 @@ python -m backend.hub sessions
 # Full activity log
 python -m backend.hub log
 
-# View filing patterns you have taught the system
+# View filing patterns the system has learned
 python -m backend.hub decisions
 
 # Show what the system can do
@@ -155,41 +157,25 @@ python -m backend.hub capabilities
 
 ---
 
-## How organisation works
-
-**Filing rules:**
+## Auto-filing rules
 
 | Situation | What happens |
 |---|---|
 | Existing folder + confidence ≥ 0.7 | Filed automatically |
-| New folder **or** confidence < 0.7 | Held in pending queue for your approval |
-| You approve with a folder choice | Filed; pattern added to `decisions` for future runs |
+| New folder **or** confidence < 0.7 | Held in pending queue for your review |
+| You approve with a folder choice | Filed; pattern saved to `decisions` for future runs |
 | You discard | Logged; not filed |
-| Blocked page / failed search | Recorded as a `limitation` notice; research continues |
+| Blocked page / failed search | Recorded as a limitation notice; research continues |
 
 ---
 
-## Demo mode  (no API key needed)
+## Demo mode (no API key needed)
 
 ```bash
 HUB_DEMO=1 uvicorn backend.api:app --port 8000
 ```
 
-Runs all UI features (filing, review queue, notices, search, history, resume,
-decisions) with scripted placeholder findings. No real research happens and a
-warning banner is shown.
-
----
-
-## Tests
-
-```bash
-# From the project root (neither test requires an API key):
-python -m pytest backend/tests/          # if you have a tests/ folder
-# or run individual test files:
-python backend/test_hub.py
-python backend/test_api.py
-```
+Runs all UI features — filing, review queue, notices, search, history, resume, decisions — with scripted placeholder findings. No real research happens and a warning banner is shown.
 
 ---
 
@@ -205,6 +191,16 @@ cp -r research_hub_data my_backup/
 rsync -av research_hub_data/ user@server:research_hub_data/
 ```
 
-Findings are plain Markdown — open them in Obsidian, VS Code, Typora, or any
-editor. The `.hub/` subfolder holds the state; delete it to start fresh while
-keeping your filed findings.
+Findings are plain Markdown — open them in Obsidian, VS Code, Typora, or any editor. Delete `.hub/` to reset state while keeping your filed findings.
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| LLM | [Groq](https://console.groq.com) (`openai/gpt-oss-120b` by default) |
+| Web search | [Tavily](https://app.tavily.com) (optional) |
+| Backend | Python, FastAPI, uvicorn |
+| Frontend | React 18, Vite, Lucide icons |
+| Storage | Plain Markdown files + JSON state |
