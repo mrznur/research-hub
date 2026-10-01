@@ -112,7 +112,11 @@ export default function App() {
           <Menu size={18} />
         </button>
         <span className="mobile-brand">Research Hub</span>
-        {reviewBadge > 0 && <span className="badge">{reviewBadge}</span>}
+        {reviewBadge > 0 && (
+          <button className="badge" onClick={() => navigate("review")} style={{ cursor: "pointer", background: "var(--dan)", color: "#fff", border: 0, borderRadius: 99, padding: "2px 8px", fontSize: 11, fontWeight: 800 }}>
+            {reviewBadge}
+          </button>
+        )}
         <button className="hamburger" onClick={toggleDark} aria-label="Toggle theme" style={{ marginLeft: "auto" }}>
           {dark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
