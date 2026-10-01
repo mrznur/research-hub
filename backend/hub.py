@@ -285,10 +285,13 @@ class Hub:
         if name == "file_finding":
             folder = self.clean_folder(a.get("folder"))
             conf   = float(a.get("confidence") or 0)
-            if (self.lib / folder).is_dir() and conf >= CONFIDENCE_MIN:
+            folder_exists = (self.lib / folder).is_dir()
+            # Auto-file if: existing folder + conf >= 0.7, OR new folder + conf >= 0.85
+            if (folder_exists and conf >= CONFIDENCE_MIN) or \
+               (not folder_exists and conf >= 0.85):
                 return "Filed at " + self.write_finding(a, sid, folder)
             why = ("needs a new folder"
-                   if not (self.lib / folder).is_dir()
+                   if not folder_exists
                    else "low confidence in placement")
             self.state["pending"].append({
                 "id":      uuid.uuid4().hex[:6],
@@ -516,8 +519,10 @@ class Hub:
             f"Filing patterns to follow: {dec}\n"
             f"Folders: {folders}\n\n"
             f"{search_rule}\n"
-            "Rules: call search_library first. File 3-5 findings with file_finding "
-            "(use existing folders, honest confidence). "
+            "Rules: call search_library first. File 3-5 findings with file_finding. "
+            "Use existing folders when they fit (confidence >= 0.7). "
+            "If no folder fits, propose a clear new folder name with confidence >= 0.85 — it will be created automatically. "
+            "Only use confidence < 0.85 for genuinely uncertain placements. "
             "Use report_limitation for anything uncertain. "
             "ALWAYS end by calling save_progress(summary, next_step)."
         )
