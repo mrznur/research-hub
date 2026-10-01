@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: research-hub
+    env: python
+    buildCommand: pip install -r backend/requirements.txt && cd frontend && npm install && npm run build
+    startCommand: uvicorn backend.api:app --host 0.0.0.0 --port $PORT
+    disk:
+      name: research-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: HUB_HOME
+        value: /data/research_hub_data
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
