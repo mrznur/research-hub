@@ -5,7 +5,7 @@ import {
   Play, RotateCcw, Trash2, Plus, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
   FileText, Folder, FolderPlus, Loader2, CheckCircle2,
   TrendingUp, Clock, Layers, Microscope, X, ExternalLink,
-  Sun, Moon, Search as SearchIcon,
+  Sun, Moon, Search as SearchIcon, Menu,
 } from "lucide-react";
 
 // ── API ───────────────────────────────────────────────────────────────────────
@@ -91,18 +91,37 @@ export default function App() {
   const [collapsed, setCollapsed] = useState(() =>
     localStorage.getItem("hub-collapsed") === "1"
   );
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleCollapse = () => setCollapsed(c => {
     localStorage.setItem("hub-collapsed", c ? "0" : "1");
     return !c;
   });
 
+  // close drawer when a nav item is tapped on mobile
+  const navigate = key => { setTab(key); setMobileOpen(false); };
+
   const reviewBadge = ov ? ov.pending + ov.notices : 0;
-  const openFile = p => { setOpen(p); setTab("library"); };
+  const openFile = p => { setOpen(p); setTab("library"); setMobileOpen(false); };
 
   return (
     <div className={`app${collapsed ? " collapsed" : ""}`}>
-      <aside className="side">
+      {/* mobile top bar — only visible on small screens via CSS */}
+      <div className="mobile-topbar">
+        <button className="hamburger" onClick={() => setMobileOpen(o => !o)} aria-label="Open menu">
+          <Menu size={18} />
+        </button>
+        <span className="mobile-brand">Research Hub</span>
+        {reviewBadge > 0 && <span className="badge">{reviewBadge}</span>}
+        <button className="hamburger" onClick={toggleDark} aria-label="Toggle theme" style={{ marginLeft: "auto" }}>
+          {dark ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+      </div>
+
+      {/* dim overlay when drawer is open */}
+      {mobileOpen && <div className="drawer-overlay" onClick={() => setMobileOpen(false)} />}
+
+      <aside className={`side${mobileOpen ? " mobile-open" : ""}`}>
         <div className="brand">
           <div className="brand-icon"><Microscope size={16} /></div>
           <span className="brand-text">Research Hub</span>
@@ -115,7 +134,7 @@ export default function App() {
           <div className="nav-group-label">Main</div>
           <nav className="nav">
             {NAV.slice(0, 4).map(({ key, label, Icon }) => (
-              <button key={key} className={tab === key ? "on" : ""} onClick={() => setTab(key)} data-tip={label}>
+              <button key={key} className={tab === key ? "on" : ""} onClick={() => navigate(key)} data-tip={label}>
                 <span className="nav-icon"><Icon size={15} /></span>
                 <span className="nav-label-text">{label}</span>
                 {key === "review" && reviewBadge > 0 && <span className="badge">{reviewBadge}</span>}
@@ -127,7 +146,7 @@ export default function App() {
           <div className="nav-group-label">Manage</div>
           <nav className="nav">
             {NAV.slice(4).map(({ key, label, Icon }) => (
-              <button key={key} className={tab === key ? "on" : ""} onClick={() => setTab(key)} data-tip={label}>
+              <button key={key} className={tab === key ? "on" : ""} onClick={() => navigate(key)} data-tip={label}>
                 <span className="nav-icon"><Icon size={15} /></span>
                 <span className="nav-label-text">{label}</span>
               </button>

@@ -375,156 +375,159 @@ pre.doc { white-space: pre-wrap; word-break: break-word; font: 13px/1.7 "Menlo",
 .grow { flex: 1; min-width: 0; }
 .empty { color: var(--mu); font-size: 13px; padding: 12px 0; }
 
-/* ── responsive — tablet (768px) ─────────────────────────────────────────── */
+/* ── mobile topbar — hidden on desktop ───────────────────────────────────── */
+.mobile-topbar { display: none; }
+.drawer-overlay { display: none; }
+
+/* ── responsive — tablet/mobile (768px) ──────────────────────────────────── */
 @media (max-width: 768px) {
-  /* sidebar → sticky top nav bar */
+  /* layout: single column, sidebar overlays content */
   .app, .app.collapsed {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
   }
+
+  /* sidebar becomes a fixed left drawer, hidden off-screen by default */
   .side, .app.collapsed .side {
-    position: sticky; top: 0; z-index: 40;
-    height: auto; width: 100%;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    width: 260px !important;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform .25s ease, box-shadow .25s ease;
+    border-right: 1px solid var(--bd);
+    overflow-y: auto;
     flex-direction: column;
-    border-right: 0; border-bottom: 1px solid var(--bd);
-    overflow: visible;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  /* open state toggled by .mobile-open class on .side */
+  .side.mobile-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,.18);
   }
 
-  /* brand row in top bar */
-  .brand { border-bottom: 1px solid var(--bd); padding: 10px 14px; min-height: 52px; }
+  /* always show brand text inside drawer */
   .brand-text, .app.collapsed .brand-text { opacity: 1; max-width: 200px; }
   .collapse-btn { display: none; }
 
-  /* horizontal scrollable nav */
+  /* nav back to vertical inside drawer */
   .nav-section, .app.collapsed .nav-section {
-    padding: 4px 8px 6px;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    flex-direction: column;
+    overflow-x: unset;
+    padding: 12px 8px;
+    flex: 1;
     gap: 2px;
-    flex-wrap: nowrap;
-    flex: unset;
   }
-  .nav-section::-webkit-scrollbar { display: none; }
-  .nav-group-label, .app.collapsed .nav-group-label { display: none; }
+  .nav-group-label, .app.collapsed .nav-group-label {
+    display: block;
+    opacity: 1; height: auto; padding: 4px 10px 2px;
+  }
   .nav-divider, .app.collapsed .nav-divider {
-    width: 1px; height: 22px; margin: 4px 2px;
-    background: var(--bd);
+    display: block;
+    height: 1px; width: auto;
+    margin: 6px 8px;
   }
-
   .nav button, .app.collapsed .nav button {
-    width: auto; flex-shrink: 0;
-    padding: 6px 10px;
-    border-left: 0 !important; border-bottom: 3px solid transparent;
-    border-radius: 7px; margin-left: 0;
+    width: 100%; flex-shrink: unset;
+    padding: 8px 10px 8px 9px;
+    border-left: 3px solid transparent !important;
+    border-bottom: 0 !important;
+    border-radius: 0 8px 8px 0;
+    margin-left: -1px;
     justify-content: flex-start;
-    font-size: 12px;
+    font-size: 13.5px;
   }
   .nav button.on, .app.collapsed .nav button.on {
-    border-left: 0 !important; border-bottom-color: var(--ac);
+    border-left-color: var(--ac) !important;
     background: color-mix(in srgb, var(--ac) 8%, var(--side-bg));
   }
   .nav-label-text, .app.collapsed .nav-label-text {
-    opacity: 1; max-width: 72px; font-size: 12px;
+    opacity: 1; max-width: 140px; font-size: 13.5px;
   }
   .badge, .app.collapsed .badge {
     position: static;
     width: auto; height: auto;
-    padding: 1px 5px; font-size: 10px;
-    border-radius: 99px; line-height: 16px;
+    padding: 1px 6px; font-size: 10px;
+    border-radius: 99px; line-height: 17px;
   }
   .app.collapsed .nav button:hover::after { display: none; }
-
-  /* theme toggle tucked into nav row */
   .theme-toggle, .app.collapsed .theme-toggle {
-    width: auto; flex-shrink: 0;
-    padding: 6px 10px;
-    border-top: 0; border-left: 1px solid var(--bd);
-    border-right: 0; border-bottom: 3px solid transparent;
-    border-radius: 0;
+    width: 100%; padding: 10px 14px;
+    border-top: 1px solid var(--bd);
+    border-left: 0; border-radius: 0;
     margin: 0;
-    align-self: stretch;
+    justify-content: flex-start;
   }
   .theme-label, .app.collapsed .theme-label {
-    opacity: 1; max-width: 72px; font-size: 12px;
+    opacity: 1; max-width: 120px; font-size: 13px;
   }
 
-  /* main content */
-  main { padding: 16px 14px 100px; }
+  /* dim overlay behind open drawer */
+  .drawer-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 199;
+    animation: fadeOverlay .2s ease;
+  }
+  @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+  /* sticky top bar with hamburger */
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    height: 52px;
+    background: var(--side-bg);
+    border-bottom: 1px solid var(--bd);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 6px rgba(0,0,0,.07);
+  }
+  .hamburger {
+    width: 36px; height: 36px;
+    background: none; border: 1.5px solid var(--bd);
+    border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tx); flex-shrink: 0;
+    transition: background .12s, border-color .12s;
+  }
+  .hamburger:hover { background: var(--bg); border-color: var(--ac); color: var(--ac); }
+  .mobile-brand {
+    font-weight: 800; font-size: 15px; letter-spacing: -.02em;
+    flex: 1;
+  }
+
+  /* main content area */
+  main { padding: 16px 14px 100px; max-width: 100%; }
   .page-header { margin-bottom: 16px; }
   .page-title { font-size: 19px; }
   .grid-2 { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .stat-value { font-size: 24px; }
-
-  /* library: tree on top, viewer below */
   .lib-layout { grid-template-columns: 1fr; }
   .tree-card { max-height: 260px; overflow-y: auto; }
-
-  /* activity table: hide session column */
-  .log-table th:nth-child(4),
-  .log-table td:nth-child(4) { display: none; }
-  .log-table { font-size: 12px; }
-  .log-table td, .log-table th { padding: 8px; }
-
-  /* cards */
-  .card { padding: 14px 14px; }
-  .form-card { padding: 16px 14px; }
-
-  /* clock */
+  .log-table th:nth-child(4), .log-table td:nth-child(4) { display: none; }
   .clock-widget { bottom: 8px; right: 8px; padding: 6px 10px; }
   .clock-date { display: none; }
-
-  /* topic bar narrower */
   .topic-bar-wrap { width: 80px; }
-
-  /* session cards */
-  .session-card-meta { flex-wrap: wrap; gap: 4px; }
 }
 
-/* ── responsive — mobile (480px) ─────────────────────────────────────────── */
+/* ── responsive — small phones (480px) ───────────────────────────────────── */
 @media (max-width: 480px) {
-  /* icon-only nav on very small screens */
-  .nav-label-text, .app.collapsed .nav-label-text { display: none; }
-  .nav button, .app.collapsed .nav button { padding: 8px 10px; }
-  .theme-label, .app.collapsed .theme-label { display: none; }
-  .theme-toggle, .app.collapsed .theme-toggle { padding: 8px 10px; }
-
   main { padding: 12px 10px 100px; }
   .page-title { font-size: 17px; }
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stats-grid { gap: 8px; }
   .stat-card { padding: 12px; }
-  .stat-value { font-size: 22px; }
+  .stat-value { font-size: 20px; }
   .stat-sub { font-size: 10px; }
-
-  /* hide chart x labels to prevent overflow */
   .chart-x { display: none; }
-
-  /* full-width buttons in forms */
+  .topic-bar-wrap { display: none; }
   .form-row { flex-direction: column; }
   .form-row .btn { width: 100%; justify-content: center; }
   .form-row .grow { width: 100%; }
-
-  /* pending card actions stack */
   .card.pending-card .form-row { flex-direction: row; flex-wrap: wrap; }
-
-  /* activity log: also hide event column label, keep chip */
-  .log-table th:nth-child(3),
-  .log-table td:nth-child(3) { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-  /* library tree compact */
-  .tree-card { max-height: 200px; }
-
-  /* topic bar hidden on tiny screens */
-  .topic-bar-wrap { display: none; }
-
-  /* page actions wrap */
   .page-actions { flex-wrap: wrap; }
-
-  /* clock smaller */
-  .clock-widget { padding: 5px 8px; gap: 5px; font-size: 13px; }
   .clock-time { font-size: 13px; }
 }
