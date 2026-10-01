@@ -1,4 +1,5 @@
 fastapi==0.115.5
 uvicorn[standard]==0.32.1
 pydantic==2.10.1
-# No extra AI SDK needed — Groq uses stdlib urllib via OpenAI-compatible REST API
+httpx==0.27.2
+# No extra AI SDK needed — Groq uses OpenAI-compatible REST API via httpx
