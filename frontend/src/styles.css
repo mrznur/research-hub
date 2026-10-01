@@ -553,7 +553,6 @@ pre.doc { white-space: pre-wrap; word-break: break-word; font: 13px/1.7 "Menlo",
   .tree-card { max-height: 260px; overflow-y: auto; }
   .log-table th:nth-child(4), .log-table td:nth-child(4) { display: none; }
   .clock-widget { bottom: 8px; right: 8px; padding: 6px 10px; }
-  .clock-date { display: none; }
   .topic-bar-wrap { width: 80px; }
 }
 
