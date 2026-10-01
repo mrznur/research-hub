@@ -69,6 +69,11 @@ class FolderIn(BaseModel):
     path: str
 
 
+class MoveIn(BaseModel):
+    path: str
+    folder: str
+
+
 # ── internal helpers ──────────────────────────────────────────────────────────
 def _start(sid: str):
     """Kick off a research round in a background thread."""
@@ -200,6 +205,34 @@ def make_folder(b: FolderIn):
     (hub.lib / f).mkdir(parents=True, exist_ok=True)
     hub.log("folder", "created " + f)
     return {"path": f}
+
+
+@app.post("/api/file/move")
+def move_file(b: MoveIn):
+    src = (hub.lib / b.path).resolve()
+    if hub.lib.resolve() not in src.parents or src.suffix != ".md" or not src.is_file():
+        raise HTTPException(404, "Source file not found")
+    dest_folder = hub.clean_folder(b.folder)
+    dest_dir = hub.lib / dest_folder
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest = dest_dir / src.name
+    # avoid overwrite
+    if dest.exists() and dest != src:
+        stem, n = src.stem, 2
+        while (dest_dir / f"{stem}-{n}.md").exists():
+            n += 1
+        dest = dest_dir / f"{stem}-{n}.md"
+    src.rename(dest)
+    new_path = str(dest.relative_to(hub.lib)).replace("\\", "/")
+    old_path = b.path.replace("\\", "/")
+    # update session filed lists
+    for s in hub.state["sessions"].values():
+        if old_path in s["filed"]:
+            s["filed"].remove(old_path)
+            s["filed"].append(new_path)
+    hub.log("moved", f"{old_path} -> {new_path}")
+    hub.save()
+    return {"path": new_path}
 
 
 # ── pending review ────────────────────────────────────────────────────────────

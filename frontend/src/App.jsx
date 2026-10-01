@@ -589,6 +589,9 @@ function Library({ open, setOpen }) {
   const [doc,  setDoc]     = useState(null);
   const [nf,   setNf]      = useState("");
   const [delErr, setDelErr] = useState("");
+  const [moving, setMoving] = useState(false);
+  const [moveFolder, setMoveFolder] = useState("");
+  const [moveErr, setMoveErr] = useState("");
 
   useEffect(() => {
     if (open) api("/file?path=" + encodeURIComponent(open)).then(setDoc).catch(() => setDoc(null));
@@ -610,6 +613,15 @@ function Library({ open, setOpen }) {
     } catch (e) { setDelErr(e.message); }
   };
 
+  const moveFinding = async () => {
+    if (!open || !moveFolder.trim()) return;
+    setMoveErr("");
+    try {
+      const res = await api("/file/move", { body: { path: open, folder: moveFolder } });
+      setOpen(res.path); setMoving(false); setMoveFolder(""); reloadTree();
+    } catch (e) { setMoveErr(e.message); }
+  };
+
   return (<>
     <div className="page-header">
       <h1 className="page-title">Library</h1>
@@ -627,10 +639,40 @@ function Library({ open, setOpen }) {
 
       <div className="doc-viewer">
         {doc ? (<>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <span style={{ fontSize: 12, color: "var(--mu)" }}>{open}</span>
-            <button className="btn sm danger" onClick={deleteFinding}><Trash2 size={13} /> Delete</button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, gap: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12, color: "var(--mu)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{open}</span>
+            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+              <button className="btn sm" onClick={() => { setMoving(m => !m); setMoveErr(""); setMoveFolder(""); }}>
+                <FolderOpen size={13} /> Move
+              </button>
+              <button className="btn sm danger" onClick={deleteFinding}><Trash2 size={13} /> Delete</button>
+            </div>
           </div>
+          {moving && (
+            <div style={{ marginBottom: 14, padding: 12, background: "var(--bg)", borderRadius: 8, border: "1px solid var(--bd)" }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Move to folder</div>
+              <div className="form-row">
+                <div className="grow">
+                  <input
+                    list="move-folders"
+                    placeholder="Folder name or path…"
+                    value={moveFolder}
+                    onChange={e => setMoveFolder(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && moveFinding()}
+                    autoFocus
+                  />
+                  <datalist id="move-folders">
+                    {tree?.folders?.map(f => <option key={f} value={f} />)}
+                  </datalist>
+                </div>
+                <button className="btn pri sm" onClick={moveFinding} disabled={!moveFolder.trim()}>
+                  <FolderOpen size={13} /> Move here
+                </button>
+                <button className="btn sm" onClick={() => setMoving(false)}>Cancel</button>
+              </div>
+              {moveErr && <div className="err" style={{ marginTop: 6 }}><AlertTriangle size={13} /> {moveErr}</div>}
+            </div>
+          )}
           {delErr && <div className="err">{delErr}</div>}
           <MarkdownDoc content={doc.content} />
         </>) : (
