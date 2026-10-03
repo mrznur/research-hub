@@ -47,6 +47,23 @@ html.dark {
 /* ── reset ───────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--tx); font: 14px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+html { scrollbar-color: rgba(128,128,128,.45) transparent; scrollbar-width: thin; }
+body::-webkit-scrollbar, .tree-card::-webkit-scrollbar, .doc-viewer-content::-webkit-scrollbar, .doc-viewer::-webkit-scrollbar, .lib-layout::-webkit-scrollbar {
+  width: 9px; height: 9px;
+}
+body::-webkit-scrollbar-track, .tree-card::-webkit-scrollbar-track, .doc-viewer-content::-webkit-scrollbar-track, .doc-viewer::-webkit-scrollbar-track, .lib-layout::-webkit-scrollbar-track {
+  background: transparent;
+}
+body::-webkit-scrollbar-thumb, .tree-card::-webkit-scrollbar-thumb, .doc-viewer-content::-webkit-scrollbar-thumb, .doc-viewer::-webkit-scrollbar-thumb, .lib-layout::-webkit-scrollbar-thumb {
+  background: rgba(120, 125, 140, 0.45);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+body::-webkit-scrollbar-thumb:hover, .tree-card::-webkit-scrollbar-thumb:hover, .doc-viewer-content::-webkit-scrollbar-thumb:hover, .doc-viewer::-webkit-scrollbar-thumb:hover, .lib-layout::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 125, 140, 0.7);
+  border: 2px solid transparent;
+}
 button, input, textarea, select { font: inherit; color: inherit; outline: none; }
 a { color: var(--ac); text-decoration: none; }
 
