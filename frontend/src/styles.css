@@ -622,9 +622,11 @@ html.dark .recent-finding-card { background: #1a1a1a; border-color: #2a2a2a; }
 /* ── responsive — tablet / smaller screens ───────────────────────────────── */
 @media (max-width: 1024px) {
   .grid-2 { grid-template-columns: 1fr; }
+  .page-header { align-items: flex-start; }
   .card, .form-card, .tree-card, .stat-card {
     box-shadow: var(--shadow-md);
   }
+  .card-header { gap: 8px; }
   html:not(.dark) .card, html:not(.dark) .form-card, html:not(.dark) .tree-card {
     border-color: transparent;
   }
@@ -765,7 +767,8 @@ html.dark .recent-finding-card { background: #1a1a1a; border-color: #2a2a2a; }
   .form-row .btn { width: 100%; justify-content: center; }
   .form-row .grow { width: 100%; }
   /* restore horizontal layout for pending card actions */
-  .card.pending-card .form-row { flex-direction: row; flex-wrap: wrap; }
+  .card.pending-card .form-row { flex-direction: row; flex-wrap: wrap; align-items: stretch; }
+  .card.pending-card .form-row .grow { width: auto; flex: 1 1 140px; }
 
   /* ── library ── */
   .lib-layout { grid-template-columns: 1fr; gap: 10px; }
@@ -776,7 +779,8 @@ html.dark .recent-finding-card { background: #1a1a1a; border-color: #2a2a2a; }
   .doc-viewer-content { padding: 16px 14px 24px; width: 100%; }
   .doc-viewer-titlebar { padding: 8px 12px; gap: 6px; flex-shrink: 0; }
   .doc-viewer-path { font-size: 10.5px; text-align: left; }
-  .doc-viewer-dots { display: none; }
+  .doc-viewer-dots { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+  .doc-viewer-dot { width: 9px; height: 9px; }
   .md-body { font-size: 13px; word-break: break-word; overflow-wrap: anywhere; max-width: none; }
   .md-body a { word-break: break-all; }
   .md-h1 { font-size: 17px; }
@@ -796,7 +800,7 @@ html.dark .recent-finding-card { background: #1a1a1a; border-color: #2a2a2a; }
   .session-card-header { flex-wrap: wrap; gap: 6px; }
 
   /* ── notices ── */
-  .notice-row { gap: 8px; }
+  .notice-row { gap: 8px; align-items: center; }
 
   /* ── topic rows ── */
   .topic-bar-wrap { width: 70px; }
