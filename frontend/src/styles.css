@@ -619,7 +619,17 @@ html.dark .recent-finding-card { background: #1a1a1a; border-color: #2a2a2a; }
   pointer-events: none;
 }
 
-/* ── responsive — tablet/mobile (768px) ──────────────────────────────────── */
+/* ── responsive — tablet / smaller screens ───────────────────────────────── */
+@media (max-width: 1024px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .card, .form-card, .tree-card, .stat-card {
+    box-shadow: var(--shadow-md);
+  }
+  html:not(.dark) .card, html:not(.dark) .form-card, html:not(.dark) .tree-card {
+    border-color: transparent;
+  }
+}
+
 @media (max-width: 768px) {
   /* layout: single column, sidebar overlays content */
   .app, .app.collapsed {
@@ -760,7 +770,6 @@ html.dark .recent-finding-card { background: #1a1a1a; border-color: #2a2a2a; }
   /* ── library ── */
   .lib-layout { grid-template-columns: 1fr; gap: 10px; }
   .tree-card { max-height: 240px; overflow-y: auto; }
-  /* ── library ── */
   .lib-layout { grid-template-columns: 1fr; height: auto; min-height: unset; }
   .tree-card { height: auto; min-height: unset; max-height: 240px; overflow-y: auto; }
   .doc-viewer { height: auto; min-height: 400px; max-height: 70vh; overflow-x: hidden; }
