@@ -64,23 +64,25 @@ export default function Review({ refresh }) {
       <span className="pill gray">{notices?.length ?? 0}</span>
     </div>
     {notices?.length === 0 && <p className="empty">No open notices.</p>}
-    <div className="card">
-      {notices?.map(n => (
-        <div className="notice-row" key={n.id}>
-          <div className="notice-icon">
-            {n.kind === "access"   ? <AlertTriangle size={15} style={{ color: "var(--dan)" }} />
-            : n.kind === "question" ? <HelpCircle    size={15} style={{ color: "var(--ac)" }} />
-            : <Bell size={15} style={{ color: "var(--wa)" }} />}
+    {notices?.length > 0 && (
+      <div className="card">
+        {notices.map(n => (
+          <div className="notice-row" key={n.id}>
+            <div className="notice-icon">
+              {n.kind === "access"   ? <AlertTriangle size={15} style={{ color: "var(--dan)" }} />
+              : n.kind === "question" ? <HelpCircle    size={15} style={{ color: "var(--ac)" }} />
+              : <Bell size={15} style={{ color: "var(--wa)" }} />}
+            </div>
+            <div className="notice-body">
+              <div className="notice-msg">{n.msg}</div>
+              <div className="notice-time">{fmt(n.t)} · <span className="pill gray">{n.kind}</span></div>
+            </div>
+            <button className="btn sm" onClick={() => act(() => api(`/notices/${n.id}/dismiss`, { body: {} }))}>
+              <X size={13} /> Dismiss
+            </button>
           </div>
-          <div className="notice-body">
-            <div className="notice-msg">{n.msg}</div>
-            <div className="notice-time">{fmt(n.t)} · <span className="pill gray">{n.kind}</span></div>
-          </div>
-          <button className="btn sm" onClick={() => act(() => api(`/notices/${n.id}/dismiss`, { body: {} }))}>
-            <X size={13} /> Dismiss
-          </button>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    )}
   </>);
 }

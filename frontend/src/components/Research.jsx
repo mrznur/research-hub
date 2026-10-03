@@ -16,7 +16,7 @@ function SessionCard({ s, onDone }) {
 
   return (
     <div className="card" style={{ marginBottom: 10 }}>
-      <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+      <div className="session-card-header">
         <div className={`session-dot ${s.running ? "running" : "idle"}`} style={{ marginTop: 6 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>

@@ -95,11 +95,14 @@ export default function Library({ open, setOpen }) {
 
       <div className="doc-viewer">
         {doc ? (<>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, gap: 8, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12, color: "var(--mu)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {open}
-            </span>
-            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+          <div className="doc-viewer-titlebar">
+            <div className="doc-viewer-dots">
+              <div className="doc-viewer-dot red" />
+              <div className="doc-viewer-dot yellow" />
+              <div className="doc-viewer-dot green" />
+            </div>
+            <span className="doc-viewer-path">{open}</span>
+            <div className="doc-viewer-actions">
               <button className="btn sm" onClick={() => { setMoving(m => !m); setMoveErr(""); setMoveFolder(""); }}>
                 <FolderOpen size={13} /> Move
               </button>
@@ -110,8 +113,8 @@ export default function Library({ open, setOpen }) {
           </div>
 
           {moving && (
-            <div style={{ marginBottom: 14, padding: 12, background: "var(--bg)", borderRadius: 8, border: "1px solid var(--bd)" }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Move to folder</div>
+            <div className="doc-viewer-move">
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: "#aaa" }}>Move to folder</div>
               <div className="form-row">
                 <div className="grow">
                   <input
@@ -135,12 +138,14 @@ export default function Library({ open, setOpen }) {
             </div>
           )}
 
-          {delErr && <div className="err">{delErr}</div>}
-          <MarkdownDoc content={doc.content} />
+          <div className="doc-viewer-content">
+            {delErr && <div className="err" style={{ marginBottom: 12 }}>{delErr}</div>}
+            <MarkdownDoc content={doc.content} />
+          </div>
         </>) : (
-          <div style={{ color: "var(--mu)", paddingTop: 40, textAlign: "center" }}>
+          <div style={{ color: "#555", paddingTop: 60, textAlign: "center" }}>
             <FileText size={32} style={{ marginBottom: 10, opacity: .3 }} />
-            <div>Select a finding to read it</div>
+            <div style={{ fontSize: 13 }}>Select a finding to read it</div>
           </div>
         )}
       </div>

@@ -76,10 +76,18 @@ TOOLS = [
                 "type": "object",
                 "properties": {
                     "title":      {"type": "string"},
-                    "summary":    {"type": "string"},
+                    "summary":    {
+                        "type": "string",
+                        "description": (
+                            "Detailed, informative summary of the finding. "
+                            "Write 5-8 sentences covering: what happened or was found, "
+                            "key facts, specific numbers/dates/names, why it matters, "
+                            "and any important context. Do NOT write just 1-2 sentences."
+                        ),
+                    },
                     "sources":    {
                         "type": "array", "items": {"type": "string"},
-                        "description": "URLs from web_search results",
+                        "description": "URLs from web_search results — include ALL relevant sources found",
                     },
                     "folder":     {"type": "string", "description": "e.g. Topic/Subtopic"},
                     "confidence": {"type": "number", "description": "0.0 – 1.0"},
@@ -523,6 +531,8 @@ class Hub:
             "Use existing folders when they fit (confidence >= 0.7). "
             "If no folder fits, propose a clear new folder name with confidence >= 0.85 — it will be created automatically. "
             "Only use confidence < 0.85 for genuinely uncertain placements. "
+            "Write DETAILED summaries (5-8 sentences, specific facts, numbers, dates). "
+            "Include ALL source URLs found from web_search. "
             "Use report_limitation for anything uncertain. "
             "ALWAYS end by calling save_progress(summary, next_step)."
         )
