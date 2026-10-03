@@ -15,7 +15,7 @@ export default function About({ ov }) {
       <div className="card">
         <div className="card-header"><span className="card-title">What it can do</span></div>
         {otherLines.slice(0, 1).map((l, i) => (
-          <p key={i} style={{ fontSize: 12, color: "var(--mu)", marginBottom: 10 }}>{l.trim()}</p>
+          <p key={i} style={{ fontStyle: "italic", fontWeight: 700, fontSize: 12, color: "var(--mu)", marginBottom: 10 }}>{l.trim()}</p>
         ))}
         {capLines.map((l, i) => {
           const colonIdx = l.indexOf(":");
@@ -27,7 +27,7 @@ export default function About({ ov }) {
               borderBottom: i < capLines.length - 1 ? "1px solid var(--bd)" : "none",
               alignItems: "flex-start",
             }}>
-              <span style={{ fontStyle: "italic", fontWeight: 600, fontSize: 13, color: "var(--ac)", minWidth: 80, flexShrink: 0 }}>{kw}</span>
+              <span style={{ fontStyle: "italic", fontWeight: 700, fontSize: 13, color: "var(--ac)", minWidth: 80, flexShrink: 0 }}>{kw}</span>
               <span style={{ fontSize: 13, color: "var(--tx)", lineHeight: 1.5 }}>{desc}</span>
             </div>
           );
