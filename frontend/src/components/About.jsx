@@ -3,8 +3,11 @@ import { AlertTriangle, CheckCircle2, RotateCcw } from "lucide-react";
 export default function About({ ov }) {
   const raw       = ov?.capabilities || "";
   const lines     = raw.split("\n").filter(l => l.trim());
-  const capLines  = lines.filter(l => l.includes(":") && l.trim().match(/^\s+\w/));
-  const otherLines = lines.filter(l => !l.includes(":") || !l.trim().match(/^\s+\w/));
+  const capLines  = lines.filter((l) => {
+    const trimmed = l.trim();
+    return trimmed.includes(":") && /^[A-Za-z][^:]*:/.test(trimmed);
+  });
+  const otherLines = lines.filter((l) => !capLines.includes(l));
   const hasTavily = raw.includes("TAVILY_API_KEY");
   const model     = ov?.capabilities?.includes("gpt-oss") ? "openai/gpt-oss-120b" : "qwen/qwen3.8-27b";
 
@@ -33,7 +36,7 @@ export default function About({ ov }) {
           );
         })}
         {otherLines.slice(1).map((l, i) => (
-          <p key={i} style={{ fontSize: 11, color: "var(--mu)", marginTop: 10, lineHeight: 1.6 }}>{l.trim()}</p>
+          <p key={i} style={{ fontStyle: "italic", fontWeight: 700, fontSize: 11, color: "var(--mu)", marginTop: 10, lineHeight: 1.6 }}>{l.trim()}</p>
         ))}
       </div>
 
