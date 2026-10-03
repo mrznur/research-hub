@@ -252,7 +252,7 @@ class Hub:
             for d in self.lib.rglob("*") if d.is_dir()
         )
 
-    def write_finding(self, f: dict, sid: str, folder: str) -> str:
+    def write_finding(self, f: dict, sid: str, folder: str, filed_at: str = "") -> str:
         d = self.lib / folder
         d.mkdir(parents=True, exist_ok=True)
         path, n = d / (slug(f["title"]) + ".md"), 2
@@ -260,9 +260,19 @@ class Hub:
             path = d / f"{slug(f['title'])}-{n}.md"
             n += 1
         src = "\n".join(f"- {s}" for s in f.get("sources", [])) or "- (none given)"
+        if filed_at:
+            timestamp = filed_at.strip()
+        else:
+            # tz_offset is minutes behind UTC, matching Date.getTimezoneOffset().
+            # UTC+8 => -480, UTC-5 => +300, so convert using "utc - tz_offset".
+            tz_offset = 0
+            if sid and sid in self.state["sessions"]:
+                tz_offset = self.state["sessions"][sid].get("tz_offset", 0)
+            adjusted = time.time() - (tz_offset * 60)
+            timestamp = time.strftime('%Y-%m-%d %H:%M', time.gmtime(adjusted))
         path.write_text(
             f"---\ntitle: {f['title']}\nsession: {sid}\n"
-            f"filed: {time.strftime('%Y-%m-%d %H:%M')}\n"
+            f"filed: {timestamp}\n"
             f"confidence: {f.get('confidence', '')}\n---\n\n"
             f"{f['summary']}\n\n## Sources\n{src}\n",
             encoding="utf-8",
@@ -297,7 +307,7 @@ class Hub:
             # Auto-file if: existing folder + conf >= 0.7, OR new folder + conf >= 0.85
             if (folder_exists and conf >= CONFIDENCE_MIN) or \
                (not folder_exists and conf >= 0.85):
-                return "Filed at " + self.write_finding(a, sid, folder)
+                return "Filed at " + self.write_finding(a, sid, folder, a.get("filed_at", ""))
             why = ("needs a new folder"
                    if not folder_exists
                    else "low confidence in placement")
@@ -336,7 +346,7 @@ class Hub:
 
     # ── review decisions ──────────────────────────────────────────────────────
 
-    def resolve_pending(self, pid: str, folder) -> str | None:
+    def resolve_pending(self, pid: str, folder, filed_at: str = "") -> str | None:
         """folder=None discards. Records the decision so future runs follow it."""
         item = next((p for p in self.state["pending"] if p["id"] == pid), None)
         if not item:
@@ -348,7 +358,7 @@ class Hub:
             self.save()
             return None
         folder = self.clean_folder(folder)
-        rel = self.write_finding(f, item["session"], folder)
+        rel = self.write_finding(f, item["session"], folder, filed_at)
         self.state["decisions"].append({
             "title":   f["title"],
             "folder":  folder,
@@ -659,13 +669,14 @@ class Hub:
         self.save()
         return s
 
-    def new_session(self, topic: str, instructions: str) -> str:
+    def new_session(self, topic: str, instructions: str, tz_offset: int = 0) -> str:
         sid = uuid.uuid4().hex[:6]
         self.state["sessions"][sid] = {
             "topic":        topic,
             "instructions": instructions,
             "rounds":       0,
             "filed":        [],
+            "tz_offset":    tz_offset,
             "created":      time.time(),
             "updated":      time.time(),
         }

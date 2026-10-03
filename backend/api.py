@@ -55,6 +55,7 @@ if not DIST.exists():
 class ResearchIn(BaseModel):
     topic: str
     instructions: str = ""
+    tz_offset: int = 0   # minutes behind UTC; UTC+6 => -360
 
 
 class ResumeIn(BaseModel):
@@ -63,6 +64,7 @@ class ResumeIn(BaseModel):
 
 class ResolveIn(BaseModel):
     folder: Optional[str] = None   # null = discard
+    filed_at: str = ""             # client local datetime string
 
 
 class FolderIn(BaseModel):
@@ -72,6 +74,10 @@ class FolderIn(BaseModel):
 class MoveIn(BaseModel):
     path: str
     folder: str
+
+
+class FiledAtIn(BaseModel):
+    filed_at: str = ""
 
 
 # ── internal helpers ──────────────────────────────────────────────────────────
@@ -134,7 +140,7 @@ def sessions():
 def research(b: ResearchIn):
     if not b.topic.strip():
         raise HTTPException(422, "Topic is required")
-    sid = hub.new_session(b.topic.strip(), b.instructions.strip())
+    sid = hub.new_session(b.topic.strip(), b.instructions.strip(), b.tz_offset)
     _start(sid)
     return {"id": sid}
 
@@ -245,7 +251,7 @@ def pending():
 def resolve(pid: str, b: ResolveIn):
     if not any(p["id"] == pid for p in hub.state["pending"]):
         raise HTTPException(404, "Not found")
-    return {"filed": hub.resolve_pending(pid, b.folder)}
+    return {"filed": hub.resolve_pending(pid, b.folder, b.filed_at)}
 
 
 # ── notices ───────────────────────────────────────────────────────────────────

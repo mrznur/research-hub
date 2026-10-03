@@ -76,7 +76,8 @@ export default function Research({ ov, refresh }) {
     if (!topic.trim()) return;
     setBusy(true); setErr("");
     try {
-      await api("/research", { body: { topic, instructions: ins } });
+      const tzOffset = new Date().getTimezoneOffset();
+      await api("/research", { body: { topic, instructions: ins, tz_offset: tzOffset } });
       setTopic(""); setIns(""); reloadSessions(); refresh();
     } catch (e) { setErr(e.message); }
     finally { setBusy(false); }

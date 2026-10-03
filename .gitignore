@@ -27,4 +27,5 @@ research_hub_data/
 Thumbs.db
 .idea/
 .vscode/
+.cursor/
 *.swp

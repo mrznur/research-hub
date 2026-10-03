@@ -11,13 +11,15 @@ An AI-powered research assistant that investigates topics using live web search 
 
 ## Features
 
-- **Autonomous research** — give it a topic and optional instructions; the AI searches the web and writes structured findings
+- **Autonomous research** — give it a topic and optional instructions; the AI searches the web and writes detailed findings
 - **Smart auto-filing** — findings above a confidence threshold are filed automatically; uncertain ones go to a review queue
-- **Decision memory** — filing choices are remembered and applied to future research sessions
+- **Decision memory** — filing choices are remembered and reused in future sessions
+- **Move findings** — drag any finding to a different folder from the library viewer
 - **Full-text search** — search across all findings with snippet previews
 - **Resume sessions** — pick up exactly where a previous research round ended
 - **Activity log** — complete audit trail of every action across all sessions
 - **Demo mode** — run the full UI without any API key
+- **Mobile-friendly** — slide-in drawer navigation, responsive layout
 
 ---
 
@@ -27,9 +29,10 @@ An AI-powered research assistant that investigates topics using live web search 
 |---|---|
 | LLM | [Groq](https://console.groq.com) — `openai/gpt-oss-120b` |
 | Web search | [Tavily](https://app.tavily.com) (optional) |
-| Backend | Python, FastAPI, uvicorn |
+| Backend | Python 3.10+, FastAPI, uvicorn |
 | Frontend | React 18, Vite 5, Lucide icons |
 | Storage | Plain Markdown files + JSON state |
+| Deployment | [Railway](https://railway.app) |
 
 ---
 
@@ -73,15 +76,14 @@ uvicorn backend.api:app --port 8000
 
 ## Development
 
-Run the backend and frontend separately for hot-reload during development:
+Run backend and frontend separately for hot-reload:
 
 ```bash
 # Terminal 1 — backend
 uvicorn backend.api:app --port 8000 --reload
 
-# Terminal 2 — frontend
+# Terminal 2 — frontend (hot reload, proxies /api → :8000)
 cd frontend && npm run dev
-# Opens http://localhost:5173 — API calls are proxied to :8000
 ```
 
 ---
@@ -90,8 +92,8 @@ cd frontend && npm run dev
 
 | Variable | Required | Description |
 |---|---|---|
-| `GROQ_API_KEY` | Yes | Groq API key — [console.groq.com](https://console.groq.com) |
-| `TAVILY_API_KEY` | No | Tavily search key — [app.tavily.com](https://app.tavily.com) |
+| `GROQ_API_KEY` | Yes | [console.groq.com](https://console.groq.com) |
+| `TAVILY_API_KEY` | No | [app.tavily.com](https://app.tavily.com) — enables live web search |
 | `HUB_HOME` | No | Data directory (default: `./research_hub_data`) |
 | `HUB_MODEL` | No | Groq model (default: `openai/gpt-oss-120b`) |
 | `HUB_DEMO` | No | Set to `1` to run without any API key |
@@ -101,25 +103,12 @@ cd frontend && npm run dev
 ## CLI reference
 
 ```bash
-# Start new research
 python -m backend.hub research "Solar panel costs" -i "residential, last 3 years"
-
-# Resume a session
 python -m backend.hub resume [session-id]
-
-# Review pending findings
 python -m backend.hub review
-
-# Search the library
 python -m backend.hub search "query"
-
-# View all sessions
 python -m backend.hub sessions
-
-# View activity log
 python -m backend.hub log
-
-# Show library folder tree
 python -m backend.hub tree
 ```
 
@@ -131,50 +120,61 @@ python -m backend.hub tree
 research-hub/
 ├── backend/
 │   ├── hub.py              Core engine — agent loop, tools, CLI
-│   ├── api.py              FastAPI REST API (17 endpoints)
+│   ├── api.py              FastAPI REST API (18 endpoints)
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx         All UI components
-│   │   ├── main.jsx
+│   │   ├── App.jsx
+│   │   ├── api.js
+│   │   ├── hooks/
+│   │   │   └── useDarkMode.js
+│   │   ├── components/
+│   │   │   ├── About.jsx
+│   │   │   ├── Activity.jsx
+│   │   │   ├── ClockWidget.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Decisions.jsx
+│   │   │   ├── Library.jsx
+│   │   │   ├── MarkdownDoc.jsx
+│   │   │   ├── Research.jsx
+│   │   │   ├── Review.jsx
+│   │   │   ├── Search.jsx
+│   │   │   └── Sidebar.jsx
 │   │   └── styles.css
-│   ├── vite.config.js
 │   └── package.json
 ├── docs/
-│   └── SYSTEM_DESIGN.md    Full architecture documentation
+│   └── SYSTEM_DESIGN.md
 ├── .env.example
-├── nixpacks.toml           Railway build config
-├── railway.json            Railway deployment config
+├── nixpacks.toml
+├── railway.json
 └── README.md
 ```
 
 ---
 
-## Deployment
-
-This project is configured for [Railway](https://railway.app). To deploy your own instance:
+## Deployment (Railway)
 
 1. Fork this repository
-2. Create a new project on Railway and connect the repo
+2. Create a new project on [Railway](https://railway.app) and connect the repo
 3. Add a volume mounted at `/data` for persistent storage
-4. Set the following environment variables in Railway:
+4. Set environment variables in Railway:
    - `GROQ_API_KEY`
    - `TAVILY_API_KEY`
    - `HUB_HOME` = `/data/research_hub_data`
 
-Railway will detect `railway.json` and `nixpacks.toml` automatically and handle the build.
+Railway detects `railway.json` and `nixpacks.toml` automatically.
 
 ---
 
-## Data and privacy
+## Backing up your research
 
-All research data is stored as plain Markdown files in `research_hub_data/`. This directory is excluded from git by default. To back up your library:
+All findings are plain Markdown files in `research_hub_data/library/`. Back up the whole directory:
 
 ```bash
 cp -r research_hub_data my_backup/
 ```
 
-Findings can be opened in any Markdown editor — Obsidian, VS Code, Typora, etc.
+Works with Obsidian, VS Code, Typora, or any Markdown editor.
 
 ---
 

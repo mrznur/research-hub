@@ -80,8 +80,10 @@ export default function Library({ open, setOpen }) {
 
     <div className="lib-layout">
       <div className="tree-card tree">
-        {root && <TreeNode n={root} open={open} setOpen={setOpen} top />}
-        <div style={{ marginTop: 12, display: "flex", gap: 6, borderTop: "1px solid var(--bd)", paddingTop: 10 }}>
+        <div className="tree-scroll">
+          {root && <TreeNode n={root} open={open} setOpen={setOpen} top />}
+        </div>
+        <div style={{ marginTop: 12, display: "flex", gap: 6, borderTop: "1px solid var(--bd)", paddingTop: 10, flexShrink: 0 }}>
           <input
             style={{ fontSize: 12, padding: "5px 8px" }}
             placeholder="New folder…"
@@ -143,8 +145,8 @@ export default function Library({ open, setOpen }) {
             <MarkdownDoc content={doc.content} />
           </div>
         </>) : (
-          <div style={{ color: "#555", paddingTop: 60, textAlign: "center" }}>
-            <FileText size={32} style={{ marginBottom: 10, opacity: .3 }} />
+          <div className="doc-viewer-empty">
+            <FileText size={36} style={{ opacity: .2 }} />
             <div style={{ fontSize: 13 }}>Select a finding to read it</div>
           </div>
         )}

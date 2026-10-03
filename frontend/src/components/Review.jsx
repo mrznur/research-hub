@@ -30,6 +30,12 @@ function PendingCard({ p, folders, onResolve }) {
   );
 }
 
+function localFiledAt() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function Review({ refresh }) {
   const [pending, rp] = useFetch("/pending", 3000);
   const [notices, rn] = useFetch("/notices", 3000);
@@ -56,7 +62,9 @@ export default function Review({ refresh }) {
     )}
     {pending?.map(p => (
       <PendingCard key={p.id} p={p} folders={tree?.folders || []}
-        onResolve={f => act(() => api(`/pending/${p.id}/resolve`, { body: { folder: f } }))} />
+        onResolve={f => act(() => api(`/pending/${p.id}/resolve`, {
+          body: { folder: f, filed_at: localFiledAt() },
+        }))} />
     ))}
 
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "20px 0 10px" }}>
